@@ -18,7 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
 
     state = run(ProjectBrief.from_json(args.brief), args.proposals, args.out, args.pdf)
-    print(f"المسار المنفَّذ: {' ← '.join(state['trace'])}", file=sys.stderr)
+    print(f"المسار المنفَّذ: {' → '.join(state['trace'])}", file=sys.stderr)
     print(f"مستند RFP: {state.get('rfp_path')}", file=sys.stderr)
     for card in state.get("scorecards", []):
         print(f"  {card.vendor:<28} {card.total:6.2f}"

@@ -1,7 +1,9 @@
 """مخرجات التقييم: JSON منظّم، تقرير ماركداون، و PDF اختياري."""
 from __future__ import annotations
 
+import html
 import json
+import re
 from pathlib import Path
 
 from .schema import ScoreCard
@@ -62,6 +64,11 @@ def to_pdf(markdown_text: str, path: str | Path, *, title: str = "تقرير") -
     return path
 
 
+def _inline(text: str) -> str:
+    """تهريب HTML ثم تحويل **غامق** — وإلا ظهرت النجوم حرفياً في الـ PDF."""
+    return re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", html.escape(text, quote=False))
+
+
 def _markdown_to_html(md: str, title: str) -> str:
     body, in_table = [], False
     for line in md.splitlines():
@@ -73,17 +80,17 @@ def _markdown_to_html(md: str, title: str) -> str:
                 body.append("<table>")
                 in_table = True
             tag = "th" if len(body) and body[-1] == "<table>" else "td"
-            body.append("<tr>" + "".join(f"<{tag}>{c}</{tag}>" for c in cells) + "</tr>")
+            body.append("<tr>" + "".join(f"<{tag}>{_inline(c)}</{tag}>" for c in cells) + "</tr>")
             continue
         if in_table:
             body.append("</table>")
             in_table = False
         if line.startswith("## "):
-            body.append(f"<h2>{line[3:]}</h2>")
+            body.append(f"<h2>{_inline(line[3:])}</h2>")
         elif line.startswith("# "):
-            body.append(f"<h1>{line[2:]}</h1>")
+            body.append(f"<h1>{_inline(line[2:])}</h1>")
         elif line.strip():
-            body.append(f"<p>{line}</p>")
+            body.append(f"<p>{_inline(line)}</p>")
     if in_table:
         body.append("</table>")
     return f"""<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
