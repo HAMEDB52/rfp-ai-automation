@@ -32,3 +32,11 @@ def test_workflow_without_proposals_takes_fallback_branch(brief, tmp_path):
 def test_split_sections_detects_numbered_headings():
     sections = split_sections(STRONG)
     assert any("تصنيف المراسلات" in k for k in sections)
+
+
+def test_markdown_bold_is_rendered_not_printed_raw():
+    from rfp_automation.report import _markdown_to_html
+
+    out = _markdown_to_html("**ملاحظات:** إغفال R5\n| أ | ب |\n|---|---|\n| **x** | <y> |", "t")
+    assert "<strong>ملاحظات:</strong>" in out and "**" not in out
+    assert "&lt;y&gt;" in out
