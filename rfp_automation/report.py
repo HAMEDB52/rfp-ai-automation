@@ -4,6 +4,7 @@ from __future__ import annotations
 import html
 import json
 import re
+import sys
 from pathlib import Path
 
 from .schema import ScoreCard
@@ -45,8 +46,9 @@ def to_pdf(markdown_text: str, path: str | Path, *, title: str = "تقرير") -
     يعيد None إن لم تكن playwright متاحة، فيبقى مخرج الماركداون هو المرجع.
     """
     try:
-        from playwright.sync_api import sync_playwright
+        from playwright.sync_api import Error as PlaywrightError, sync_playwright
     except ImportError:
+        print("تنبيه: playwright غير مثبّتة — تخطّي PDF (pip install playwright)", file=sys.stderr)
         return None
 
     html = _markdown_to_html(markdown_text, title)
@@ -54,13 +56,20 @@ def to_pdf(markdown_text: str, path: str | Path, *, title: str = "تقرير") -
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".html")
     tmp.write_text(html, encoding="utf-8")
-    with sync_playwright() as pw:
-        browser = pw.chromium.launch()
-        page = browser.new_page()
-        page.goto(tmp.resolve().as_uri())
-        page.pdf(path=str(path), format="A4", margin={"top": "18mm", "bottom": "18mm",
-                                                      "left": "15mm", "right": "15mm"})
-        browser.close()
+    try:
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch()
+            page = browser.new_page()
+            page.goto(tmp.resolve().as_uri())
+            page.pdf(path=str(path), format="A4", margin={"top": "18mm", "bottom": "18mm",
+                                                          "left": "15mm", "right": "15mm"})
+            browser.close()
+    except PlaywrightError as exc:
+        if "Executable doesn't exist" not in str(exc):
+            raise
+        print("تنبيه: متصفح Chromium غير مثبّت — تخطّي PDF. شغّل: playwright install chromium",
+              file=sys.stderr)
+        return None
     return path
 
 
