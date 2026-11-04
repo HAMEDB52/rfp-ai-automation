@@ -40,3 +40,26 @@ def test_markdown_bold_is_rendered_not_printed_raw():
     out = _markdown_to_html("**ملاحظات:** إغفال R5\n| أ | ب |\n|---|---|\n| **x** | <y> |", "t")
     assert "<strong>ملاحظات:</strong>" in out and "**" not in out
     assert "&lt;y&gt;" in out
+
+
+def test_pdf_is_skipped_when_chromium_is_missing(monkeypatch, tmp_path, capsys):
+    import playwright.sync_api as pw_api
+
+    from rfp_automation.report import to_pdf
+
+    class _Launcher:
+        def launch(self):
+            raise pw_api.Error("BrowserType.launch: Executable doesn't exist at /x")
+
+    class _PW:
+        chromium = _Launcher()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    monkeypatch.setattr(pw_api, "sync_playwright", lambda: _PW())
+    assert to_pdf("# t", tmp_path / "r.pdf") is None
+    assert "playwright install chromium" in capsys.readouterr().err
