@@ -2,7 +2,7 @@
 
 خط عمل كامل يأخذ **موجز العميل** وينتج **مستند طلب عرض (RFP)**، ثم يقرأ **عروض المورّدين** ويقيّمها مقابل المتطلبات، وينتج **تقريراً مُعلَّلاً** بالدرجات والأدلة النصية.
 
-[![tests](https://img.shields.io/badge/tests-19%20passed-brightgreen)](#الاختبارات)
+[![tests](https://img.shields.io/badge/tests-20%20passed-brightgreen)](#الاختبارات)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue)](#التثبيت)
 [![license](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
@@ -43,6 +43,7 @@
 git clone https://github.com/HAMEDB52/rfp-ai-automation.git
 cd rfp-ai-automation
 pip install -r requirements-dev.txt
+playwright install chromium   # مطلوب فقط لخيار --pdf
 ```
 
 ## التشغيل
@@ -121,7 +122,7 @@ for card in rank(cards):
 ## الاختبارات
 
 ```bash
-python -m pytest -q      # 19 اختباراً
+python -m pytest -q      # 20 اختباراً
 ```
 
 تغطي: محرّك الرسم البياني (مسار خطي، تفرّع شرطي، كشف الحلقات، عقدة مفقودة) · التطبيع العربي · اكتمال أقسام المستند · ترتيب العروض · رصد المتطلب الإلزامي المفقود · أثر التحفّظ على الدرجة · الخط الكامل بفرعيه.
@@ -140,4 +141,4 @@ MIT — انظر [LICENSE](LICENSE).
 
 ## English summary
 
-**rfp-ai-automation** turns a client brief into a complete RFP document, then parses vendor proposals (txt/md/pdf) and scores them against each requirement with an interpretable rubric: per-requirement coverage, supporting evidence, commitment bonus, hedging penalty, and a hard penalty for missing mandatory requirements. The pipeline is a from-scratch state-graph engine (LangGraph-style: nodes, conditional edges, execution trace) with no heavy dependencies. Arabic text is normalized and lightly stemmed so morphological variants match. Outputs are Markdown, structured JSON, and an optional Arabic-correct PDF rendered through Chromium. 19 tests cover the graph engine, scoring rules, and both workflow branches.
+**rfp-ai-automation** turns a client brief into a complete RFP document, then parses vendor proposals (txt/md/pdf) and scores them against each requirement with an interpretable rubric: per-requirement coverage, supporting evidence, commitment bonus, hedging penalty, and a hard penalty for missing mandatory requirements. The pipeline is a from-scratch state-graph engine (LangGraph-style: nodes, conditional edges, execution trace) with no heavy dependencies. Arabic text is normalized and lightly stemmed so morphological variants match. Outputs are Markdown, structured JSON, and an optional Arabic-correct PDF rendered through Chromium. 20 tests cover the graph engine, scoring rules, and both workflow branches.
